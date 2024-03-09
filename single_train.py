@@ -119,7 +119,7 @@ def train_and_evaluate(epoch, hps, nets, optims, schedulers, scaler, loaders, lo
   if writers is not None:
     writer, writer_eval = writers
 
-  # train_loader.batch_sampler.set_epoch(epoch)
+  train_loader.batch_sampler.set_epoch(epoch)
   global global_step
 
   net_g.train()
@@ -240,7 +240,7 @@ def evaluate(hps, generator, eval_loader, writer_eval):
         hps.data.sampling_rate,
         hps.data.mel_fmin, 
         hps.data.mel_fmax)
-      y_hat = generator.module.infer(c, g=g, mel=mel)
+      y_hat = generator.infer(c, g=g, mel=mel)
       
       y_hat_mel = mel_spectrogram_torch(
         y_hat.squeeze(1).float(),
