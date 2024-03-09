@@ -113,7 +113,7 @@ def train_and_evaluate(epoch, hps, nets, optims, schedulers, scaler, loaders, lo
   if writers is not None:
     writer, writer_eval = writers
 
-  train_loader.batch_sampler.set_epoch(epoch)
+  # train_loader.batch_sampler.set_epoch(epoch)
   global global_step
 
   net_g.train()
