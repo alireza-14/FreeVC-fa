@@ -45,7 +45,7 @@ def main():
   os.environ['MASTER_ADDR'] = 'localhost'
   os.environ['MASTER_PORT'] = hps.train.port
 
-  run()
+  run(hps)
 
 
 def run(hps):
@@ -72,8 +72,8 @@ def run(hps):
   net_g = SynthesizerTrn(
       hps.data.filter_length // 2 + 1,
       hps.train.segment_size // hps.data.hop_length,
-      **hps.model).cuda()
-  net_d = MultiPeriodDiscriminator(hps.model.use_spectral_norm).cuda()
+      **hps.model).cuda(0)
+  net_d = MultiPeriodDiscriminator(hps.model.use_spectral_norm).cuda(0)
   optim_g = torch.optim.AdamW(
       net_g.parameters(), 
       hps.train.learning_rate, 
@@ -121,12 +121,12 @@ def train_and_evaluate(epoch, hps, nets, optims, schedulers, scaler, loaders, lo
   for batch_idx, items in enumerate(train_loader):
     if hps.model.use_spk:
       c, spec, y, spk = items
-      g = spk.cuda(non_blocking=True)
+      g = spk.cuda(0, non_blocking=True)
     else:
       c, spec, y = items
       g = None
-    spec, y = spec.cuda(non_blocking=True), y.cuda(non_blocking=True)
-    c = c.cuda(non_blocking=True)
+    spec, y = spec.cuda(non_blocking=True), y.cuda(0, non_blocking=True)
+    c = c.cuda(0, non_blocking=True)
     mel = spec_to_mel_torch(
           spec, 
           hps.data.filter_length, 
