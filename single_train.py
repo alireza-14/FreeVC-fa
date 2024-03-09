@@ -59,10 +59,16 @@ def run(hps):
   torch.manual_seed(hps.train.seed)
 
   train_dataset = TextAudioSpeakerLoader(hps.data.training_files, hps)
+  train_sampler = DistributedBucketSampler(
+      train_dataset,
+      hps.train.batch_size,
+      [32,300,400,500,600,700,800,900,1000],
+      num_replicas=1,
+      rank=0,
+      shuffle=True)
   collate_fn = TextAudioSpeakerCollate(hps)
-  train_loader = DataLoader(train_dataset, num_workers=8,
-          batch_size=hps.train.batch_size, shuffle=True, pin_memory=True,
-      collate_fn=collate_fn)
+  train_loader = DataLoader(train_dataset, num_workers=8, shuffle=False, pin_memory=True,
+      collate_fn=collate_fn, batch_sampler=train_sampler)
   
   eval_dataset = TextAudioSpeakerLoader(hps.data.validation_files, hps)
   eval_loader = DataLoader(eval_dataset, num_workers=8, shuffle=True,
